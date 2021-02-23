@@ -1,4 +1,4 @@
-sorted_array = [1,2,3,4,5,6,7,8]
+sorted_array = [1,2,3,4,6,7,8]
 
 class Node
   attr_reader :data
@@ -12,7 +12,6 @@ class Node
 end
 
 class Tree
-  attr_reader :tree
   attr_accessor :root
 
   def initialize(data)
@@ -33,6 +32,21 @@ class Tree
     return root
   end
 
+  def insert(root, key)
+    if root == nil
+      return Node.new(key)
+    else
+      if root.data == key
+        return root
+      elsif root.data < key
+        root.right = insert(root.right, key)
+      else
+        root.left = insert(root.left, key)
+      end
+    end
+    return root
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
@@ -41,6 +55,8 @@ class Tree
 end
 
 a = Tree.new(sorted_array)
+a.pretty_print
+a.insert(a.root, 5)
 a.pretty_print
 
 # spacer
