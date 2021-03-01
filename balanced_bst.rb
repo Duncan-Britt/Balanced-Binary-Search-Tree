@@ -1,12 +1,8 @@
-sorted_array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
-unsorted_array = [14,13,12,11,10,9,8,7,6,5,4,3,2,1]
+array1 = [20,30,40,32,34,36,50,70,60,65,80,75,85]
+array2 = ["j", "a", "c", "k", "d", "a", "w", "s", "l", "o", "v", "e", "m", "y", "b", "i", "g", "s", "p", "h", "i", "i", "n", "x", "o", "f", "q", "u", "a", "r", "t", "z"]
 
 class Node
-  include Comparable
-  def <=>(other)
-    data <=> other.data
-  end
-  attr_reader :data
+  attr_accessor :data
   attr_accessor :left, :right
 
   def initialize(data)
@@ -25,7 +21,7 @@ class Tree
 
   def make_tree(array)
     sorted = my_merge(array)
-    build_tree(sorted)
+    build_tree(sorted.uniq)
   end
 
   def my_merge(array)
@@ -81,6 +77,38 @@ class Tree
     return ground
   end
 
+  def insert(val, node=root)
+    if val < node.data
+      if node.left == nil
+        node.left = Node.new(val)
+      else
+        insert(val, node.left)
+      end
+    else
+      if node.right == nil
+        node.right = Node.new(val)
+      else
+        insert(val, node.right)
+      end
+    end
+  end
+
+  def delete(val, node=root)
+    if val < node.data
+      if node.left.data == val
+        node.left = nil
+      else
+        delete(val, node.left)
+      end
+    else
+      if node.right.data == val
+        node.right.data = 75 ## FIX ME
+      else
+        delete(val, node.right)
+      end
+    end
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
@@ -88,10 +116,20 @@ class Tree
   end
 end
 
-a = Tree.new(sorted_array)
+a = Tree.new(array1)
 a.pretty_print
 5.times do
   puts "\n"
 end
-b = Tree.new(unsorted_array)
+b = Tree.new(array2)
 b.pretty_print
+5.times do
+  puts "\n"
+end
+a.insert(33)
+a.pretty_print
+5.times do
+  puts "\n"
+end
+a.delete(70)
+a.pretty_print
