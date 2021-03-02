@@ -93,66 +93,47 @@ class Tree
     end
   end
 
-  def delete(val, node=root, stck=[node])
-    case
-    when node.left && node.right
-      puts "path1"
-      check_value(val, node, stck)
-    when node.right || node.left && !(node.left && node.right)
-      puts "path2"
-      if node.left
-        check_value(val, node, stck)
-      else
-        check_value(val, node, stck)
-      end
-    else
-      puts "path3"
-      if stck[-1].right
-        if stck[-1].right.data == val
-          stck[-1].right = nil
-        end
-      elsif stck[-1].left
-        if stck[-1].left.data == val
-          stck[-1].left = nil
-        end
-      end
-    end
+  def min_value_node(node)
+    # base case
+    return node unless node.left
+    # loop down to find the leftmost leaf
+    min_value_node(node.left)
   end
 
-  def check_value(val, node, stck)
+  def delete(val, node=root)
+    # Base Case
+    return node unless node
+
+    # value is less than root, must be in left subtree
     if val < node.data
-      stck << node
-      delete(val, node.left, stck)
-    elsif val == node.data
-      node.data = least(node)
+      node.left = delete(val, node.left)
+    # if val greater than root, must be in right subtree
+    elsif val > node.data
+      node.right = delete(val, node.right)
+    # if val is same as root value, this is the node to be deleted
     else
-      stck << node
-      delete(val, node.right, stck)
-    end
-  end
-
-  def least(node, stack=[], rightt=true)
-    if stack.length == 0 && node.right
-      stack << node
-      least(node.right, stack)
-    elsif stack.length == 0
-      stack << node
-      rightt = false
-      least(node.left, stack, rightt)
-    elsif !node.left && stack.length == 1
-      if rightt
-        stack[-1].right=nil
-      else
-        stack[-1].left = nil
+      # node with one or no children
+      if node.left == nil
+        temp = node.right
+        node = nil
+        return temp
+      elsif node.right == nil
+        temp = node.left
+        node = nil
+        return temp
       end
-      return node.data
-    elsif !node.left
-      stack[-1].left=nil
-      return node.data
-    else
-      stack << node
-      least(node.left, stack)
+
+      # Node with two children:
+      # Get the inorder successor
+      # (smallest in the right subtree)
+      temp = min_value_node(node.right) # MAKE THIS METHOD !!!!
+      # copy the inorder successor's content to this node
+      node.data = temp.data
+      # delete the inorder successor
+      node.right = delete(temp.data, node.right) # why the assignment !!!!!
     end
+
+    return node
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
@@ -177,5 +158,5 @@ a.pretty_print
 5.times do
   puts "\n"
 end
-a.delete(75)
+a.delete(50)
 a.pretty_print
