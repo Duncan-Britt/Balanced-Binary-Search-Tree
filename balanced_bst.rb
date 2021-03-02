@@ -93,19 +93,65 @@ class Tree
     end
   end
 
-  def delete(val, node=root)
-    if val < node.data
-      if node.left.data == val
-        node.left = nil
+  def delete(val, node=root, stck=[node])
+    case
+    when node.left && node.right
+      puts "path1"
+      check_value(val, node, stck)
+    when node.right || node.left && !(node.left && node.right)
+      puts "path2"
+      if node.left
+        check_value(val, node, stck)
       else
-        delete(val, node.left)
+        check_value(val, node, stck)
       end
     else
-      if node.right.data == val
-        node.right.data = 75 ## FIX ME
-      else
-        delete(val, node.right)
+      puts "path3"
+      if stck[-1].right
+        if stck[-1].right.data == val
+          stck[-1].right = nil
+        end
+      elsif stck[-1].left
+        if stck[-1].left.data == val
+          stck[-1].left = nil
+        end
       end
+    end
+  end
+
+  def check_value(val, node, stck)
+    if val < node.data
+      stck << node
+      delete(val, node.left, stck)
+    elsif val == node.data
+      node.data = least(node)
+    else
+      stck << node
+      delete(val, node.right, stck)
+    end
+  end
+
+  def least(node, stack=[], rightt=true)
+    if stack.length == 0 && node.right
+      stack << node
+      least(node.right, stack)
+    elsif stack.length == 0
+      stack << node
+      rightt = false
+      least(node.left, stack, rightt)
+    elsif !node.left && stack.length == 1
+      if rightt
+        stack[-1].right=nil
+      else
+        stack[-1].left = nil
+      end
+      return node.data
+    elsif !node.left
+      stack[-1].left=nil
+      return node.data
+    else
+      stack << node
+      least(node.left, stack)
     end
   end
 
@@ -131,5 +177,5 @@ a.pretty_print
 5.times do
   puts "\n"
 end
-a.delete(70)
+a.delete(75)
 a.pretty_print
