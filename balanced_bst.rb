@@ -13,8 +13,7 @@ class Node
 end
 
 class Tree
-  attr_reader :root
-  attr_accessor :queue, :sequence
+  attr_accessor :queue, :sequence, :root
 
   def initialize(array)
     @root = make_tree(array)
@@ -158,16 +157,16 @@ class Tree
     end
   end
 
-  def level_order(array=[])
-    if queue.empty?
-      queue << root
+  def level_order(array=[], cue=queue)
+    if cue.empty?
+      cue << root
       return array
     end
-    temp = queue.shift
+    temp = cue.shift
     array << temp.data
-    queue << temp.left if temp.left
-    queue << temp.right if temp.right
-    level_order(array)
+    cue << temp.left if temp.left
+    cue << temp.right if temp.right
+    level_order(array, cue)
   end
 
   def postorder(node=root, array=[])
@@ -197,6 +196,74 @@ class Tree
     array << node.data
     array << temp_right
     return array.flatten
+  end
+
+  def height(node)
+    start = find(node)
+    get_height(start)
+  end
+
+  def get_height(node, count=0)
+    le = get_height(node.left, count+1) if node.left
+    ri = get_height(node.right, count+1) if node.right
+    if le && ri
+      if le >= ri
+        count = le
+      else
+        count = ri
+      end
+    elsif le || ri
+      if le
+        count = le
+      elsif ri
+        count = ri
+      end
+    end
+    return count
+  end
+
+  def balanced?(node=root)
+    if node.left
+      return false unless balanced?(node.left)
+    end
+    if node.right
+      return false unless balanced?(node.right)
+    end
+    node_balanced?(node)
+  end
+
+  def node_balanced?(node=root)
+    a = get_height(node.left) if node.left
+    b = get_height(node.right) if node.right
+    a = 0 if !a
+    b = 0 if !b
+    return true if (a-b) < 2 && (a-b) > -2
+  end
+
+  def rebalance
+    return if self.balanced?
+    array = self.level_order
+    self.root = make_tree(array)
+  end
+
+  def depth(val, node=root, count=0)
+    return count if val == node.data
+
+    if val < node.data
+      if node.left == nil
+        puts "\nKey not found.\n"
+        return nil
+      else
+        depth(val, node.left, count+1)
+      end
+    elsif val > node.data
+      if node.right == nil
+        puts "\nKey not found.\n"
+        return nil
+      else
+        depth(val, node.right, count+1)
+      end
+    end
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
@@ -259,3 +326,39 @@ p c.preorder
   puts "\n"
 end
 p c.inorder
+
+5.times do
+  puts "\n"
+end
+c.pretty_print
+p c.height("t")
+p c.depth("z")
+p c.balanced?
+c.insert("23")
+c.insert("24")
+c.insert("25")
+c.pretty_print
+p c.balanced?
+c.rebalance
+c.pretty_print
+p c.balanced?
+
+rand_arr = Array.new(15) { rand(1..100) }
+d = Tree.new(rand_arr)
+d.pretty_print
+p d.balanced?
+p d.level_order
+p d.preorder
+p d.inorder
+p d.postorder
+d.insert(113)
+d.insert(114)
+d.insert(117)
+d.insert(118)
+d.insert(109)
+d.insert(111)
+d.pretty_print
+p d.balanced?
+d.rebalance
+d.pretty_print
+p d.balanced?
