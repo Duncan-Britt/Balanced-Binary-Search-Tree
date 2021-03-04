@@ -14,7 +14,7 @@ end
 
 class Tree
   attr_reader :root
-  attr_accessor :queue
+  attr_accessor :queue, :sequence
 
   def initialize(array)
     @root = make_tree(array)
@@ -159,13 +159,44 @@ class Tree
   end
 
   def level_order(array=[])
-    return array if queue.empty?
+    if queue.empty?
+      queue << root
+      return array
+    end
     temp = queue.shift
     array << temp.data
     queue << temp.left if temp.left
     queue << temp.right if temp.right
     level_order(array)
-    #array
+  end
+
+  def postorder(node=root, array=[])
+    array << postorder(node.left) if node.left
+    array << postorder(node.right) if node.right
+    array << node.data
+    return array.flatten
+  end
+
+  def preorder(node=root, array=[])
+    temp_left = []
+    temp_right = []
+    temp_left << preorder(node.left) if node.left
+    temp_right << preorder(node.right) if node.right
+    array << node.data
+    array << temp_left
+    array << temp_right
+    return array.flatten
+  end
+
+  def inorder(node=root, array=[])
+    temp_left = []
+    temp_right = []
+    temp_left << inorder(node.left) if node.left
+    temp_right << inorder(node.right) if node.right
+    array << temp_left
+    array << node.data
+    array << temp_right
+    return array.flatten
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
@@ -213,3 +244,18 @@ p c.find("w")
 end
 c.pretty_print
 p c.level_order
+
+2.times do
+  puts "\n"
+end
+p c.postorder
+
+2.times do
+  puts "\n"
+end
+p c.preorder
+
+2.times do
+  puts "\n"
+end
+p c.inorder
