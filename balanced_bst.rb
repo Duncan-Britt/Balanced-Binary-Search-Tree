@@ -14,9 +14,11 @@ end
 
 class Tree
   attr_reader :root
+  attr_accessor :queue
 
   def initialize(array)
     @root = make_tree(array)
+    @queue = [@root]
   end
 
   def make_tree(array)
@@ -136,6 +138,36 @@ class Tree
     return node
   end
 
+  def find(val, node=root)
+    return node if val == node.data
+
+    if val < node.data
+      if node.left == nil
+        puts "\nKey not found.\n"
+        return nil
+      else
+        find(val, node.left)
+      end
+    elsif val > node.data
+      if node.right == nil
+        puts "\nKey not found.\n"
+        return nil
+      else
+        find(val, node.right)
+      end
+    end
+  end
+
+  def level_order(array=[])
+    return array if queue.empty?
+    temp = queue.shift
+    array << temp.data
+    queue << temp.left if temp.left
+    queue << temp.right if temp.right
+    level_order(array)
+    #array
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
@@ -148,11 +180,7 @@ a.pretty_print
 5.times do
   puts "\n"
 end
-b = Tree.new(array2)
-b.pretty_print
-5.times do
-  puts "\n"
-end
+
 a.insert(33)
 a.pretty_print
 5.times do
@@ -160,3 +188,28 @@ a.pretty_print
 end
 a.delete(50)
 a.pretty_print
+
+5.times do
+  puts "\n"
+end
+b = Tree.new(array2)
+b.pretty_print
+
+5.times do
+  puts "\n"
+end
+b.delete("p")
+b.pretty_print
+
+5.times do
+  puts "\n"
+end
+c = Tree.new(array2)
+c.pretty_print
+p c.find("w")
+
+5.times do
+  puts "\n"
+end
+c.pretty_print
+p c.level_order
